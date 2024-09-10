@@ -5,11 +5,11 @@ using LibraryManagementSystem.Service.Services;
 
 namespace LibraryManagementSystem.Api.Endpoints
 {
-    internal class GetBook : Endpoint<IdRequest, Response<BookDto>>
+    internal class GetAllBook : Endpoint<IdRequest, Response<IEnumerable<BookDto>>>
     {
         private readonly IBookService _bookService;
 
-        public GetBook(IBookService bookService)
+        public GetAllBook(IBookService bookService)
         {
             _bookService = bookService;
         }
@@ -17,20 +17,14 @@ namespace LibraryManagementSystem.Api.Endpoints
 
         public override void Configure()
         {
-            Get("/book/{id}");
+            Get("/books");
             AllowAnonymous();
         }
 
         public override async Task HandleAsync(IdRequest req, CancellationToken ct)
         {
-            BookDto bookDto = _bookService.GetBookById(req.Id);
-            if (bookDto == null)
-            {
-                await SendAsync(new Response<BookDto> { Message = $"Book with id {req.Id} not found" });
-                return;
-                
-            }
-            await SendAsync(new Response<BookDto> { data = bookDto });
+            IEnumerable<BookDto> bookDto = _bookService.GetAllBooks();
+            await SendAsync(new Response<IEnumerable<BookDto>> { data = bookDto });
         }
     }
 }

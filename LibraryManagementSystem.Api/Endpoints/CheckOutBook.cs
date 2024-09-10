@@ -5,11 +5,11 @@ using LibraryManagementSystem.Service.Services;
 
 namespace LibraryManagementSystem.Endpoints
 {
-    public class CheckOutBook : Endpoint<RequestId, ResponseResult<BookDto>>
+    public class CheckOutBook : Endpoint<IdRequest, Response<BookDto>>
     {
-        private readonly ILibraryService _bookService;
+        private readonly IBookService _bookService;
 
-        public CheckOutBook(ILibraryService bookService)
+        public CheckOutBook(IBookService bookService)
         {
             _bookService = bookService;
         }
@@ -17,14 +17,25 @@ namespace LibraryManagementSystem.Endpoints
 
         public override void Configure()
         {
-            Get("/books/checkout/{id}");
+            Patch("/book/checkout");
             AllowAnonymous();
         }
 
-        public override async Task HandleAsync(RequestId req, CancellationToken ct)
+        public override async Task HandleAsync(IdRequest req, CancellationToken ct)
         {
-            _bookService.CheckOutBook(req.Id, 0);
-            await SendAsync(new ResponseResult<BookDto> { Message = "Book checked out successfully!" });
+            try
+            {
+                _bookService.CheckOutBook(req.Id);
+                await SendAsync(new Response<BookDto> { Message = "Book checked out successfully!" });
+            }
+            catch (Exception ex)
+            {
+                // Handle other potential exceptions
+                await SendAsync(new Response<BookDto>
+                {
+                    Message = ex.Message
+                });
+            }
         }
     }
 }

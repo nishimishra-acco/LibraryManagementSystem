@@ -4,11 +4,11 @@ using LibraryManagementSystem.Service.Services;
 
 namespace LibraryManagementSystem.Api.Endpoints
 {
-    public class CalculateLateFee : Endpoint<RequestId, ResponseResult<BookDto>>
+    public class CalculateLateFee : Endpoint<IdRequest, Response<Decimal>>
     {
-        private readonly ILibraryService _bookService;
+        private readonly IBookService _bookService;
 
-        public CalculateLateFee(ILibraryService bookService)
+        public CalculateLateFee(IBookService bookService)
         {
             _bookService = bookService;
         }
@@ -20,10 +20,10 @@ namespace LibraryManagementSystem.Api.Endpoints
             AllowAnonymous();
         }
 
-        public override async Task HandleAsync(RequestId req, CancellationToken ct)
+        public override async Task HandleAsync(IdRequest req, CancellationToken ct)
         {
-            _bookService.CalculateLateFees(req.Id);
-            await SendAsync(new ResponseResult<BookDto> { Message = "Check Late fee Amount" });
+            var lateFees = _bookService.CalculateLateFees(req.Id);
+            await SendAsync(new Response<Decimal> { data = lateFees });
         }
     }
 }

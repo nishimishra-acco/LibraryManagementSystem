@@ -8,9 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddFastEndpoints();
 // Add services to the container.
-builder.Services.AddSingleton<IBookRepository, InMemoryBookRepository>();
-builder.Services.AddSingleton<ILibraryService, LibraryService>();
-builder.Services.AddSingleton<ILoanRepository, InMemoryLoanRepository>();
+builder.Services.AddSingleton<IBookRepository, BookRepository>();
+builder.Services.AddSingleton<IBookService, BookService>();
+
 
 var app = builder.Build();
 

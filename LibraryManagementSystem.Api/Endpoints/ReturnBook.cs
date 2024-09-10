@@ -4,11 +4,11 @@ using LibraryManagementSystem.Service.Services;
 
 namespace LibraryManagementSystem.Api.Endpoints
 {
-    public class ReturnBook : Endpoint<RequestId, ResponseResult<BookDto>>
+    public class ReturnBook : Endpoint<IdRequest, Response<BookDto>>
     {
-        private readonly ILibraryService _bookService;
+        private readonly IBookService _bookService;
 
-        public ReturnBook(ILibraryService bookService)
+        public ReturnBook(IBookService bookService)
         {
             _bookService = bookService;
         }
@@ -16,14 +16,25 @@ namespace LibraryManagementSystem.Api.Endpoints
 
         public override void Configure()
         {
-            Get("/books/return/{id}");
+            Patch("/book/return");
             AllowAnonymous();
         }
 
-        public override async Task HandleAsync(RequestId req, CancellationToken ct)
+        public override async Task HandleAsync(IdRequest req, CancellationToken ct)
         {
-            _bookService.ReturnBook(req.Id);
-            await SendAsync(new ResponseResult<BookDto> { Message = "Book return!" });
+            try
+            {
+                _bookService.ReturnBook(req.Id);
+                await SendAsync(new Response<BookDto> { Message = "Book return!" });
+            }
+            catch (Exception ex)
+            {
+                // Handle other potential exceptions
+                await SendAsync(new Response<BookDto>
+                {
+                    Message = ex.Message
+                });
+            }
         }
     }
 }

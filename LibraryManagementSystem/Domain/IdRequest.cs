@@ -1,7 +1,7 @@
 ﻿
 namespace LibraryManagementSystem.Service.Models
 {
-    public class RequestId
+    public class IdRequest
     {
         public Guid Id { get; set; }
     }

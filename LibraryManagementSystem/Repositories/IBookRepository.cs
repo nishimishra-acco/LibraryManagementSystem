@@ -6,7 +6,6 @@ namespace LibraryManagementSystem.Service.Repositories
     {
         BookDto GetById(Guid id);
         void Add(BookDto book);
-        void Remove(Guid id);
         IEnumerable<BookDto> GetAll();
     }
 }

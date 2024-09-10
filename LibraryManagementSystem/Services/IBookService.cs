@@ -2,17 +2,22 @@
 
 namespace LibraryManagementSystem.Service.Services
 {
-    public interface ILibraryService
+    public interface IBookService
     {
-        void AddBook(string title, string author, string Description);
+        void AddBook(BookDto bookDto);
         void RemoveBook(Guid id);
 
         BookDto? GetBookById(Guid id);
 
-        IEnumerable<BookDto> GetAvailableBooks();
+        IEnumerable<BookDto> GetAllBooks();
 
-        void CheckOutBook(Guid id, int userId);
+        IEnumerable<BookDto> GetAllOverDueBooks();
+        IEnumerable<BookDto> GetAllAvailableBooks();
+
+
+        void CheckOutBook(Guid id);
         void ReturnBook(Guid id);
+        
         decimal CalculateLateFees(Guid id);
     }
 }
