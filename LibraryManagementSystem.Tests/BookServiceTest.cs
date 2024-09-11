@@ -2,7 +2,6 @@ using LibraryManagementSystem.Service.Models;
 using LibraryManagementSystem.Service.Repositories;
 using LibraryManagementSystem.Service.Services;
 using Moq;
-using System.Collections.Generic;
 
 namespace LibraryManagementSystem.Tests;
 
@@ -10,83 +9,83 @@ public class BookServiceTest
 {
     private readonly Mock<IBookRepository> _bookRepositoryMock;
     private readonly IBookService _bookServiceMock;
-    private readonly List<BookDto> books =
-    [
-        new()
-        {
-            Title = "Operating System",
-            Author = "Albert",
-            Description = "Coding",
-            IsDeleted = false,
-            IsCheckedOut = false,
-            IssueDate = null,
-            ReturnDate = null,
-            Id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5"),
-            AddedOn = DateTime.Now
-        },
-        new()
-        {
-            Title = "Data Structure",
-            Author = "Mark",
-            Description = "Coding",
-            IsDeleted = false,
-            IsCheckedOut = false,
-            IssueDate = null,
-            ReturnDate = null,
-            Id = new Guid("a834dee5-d026-4042-b426-db087e55c38f"),
-            AddedOn = DateTime.Now
-        },
-        new()
-        {
-            Title = "Data Structure 1",
-            Author = "Mark 1",
-            Description = "Coding 1",
-            IssueDate = null,
-            ReturnDate = null,
-            IsDeleted = true,
-            IsCheckedOut = false,
-            Id = new Guid("b69613b5-9f07-42a8-a437-0b4e186fffbe"),
-            AddedOn = DateTime.Now
-        },
-        new()
-        {
-            Title = "Data Structure 2",
-            Author = "Mark 2",
-            Description = "Coding 2",
-            IssueDate = DateTime.Now,
-            ReturnDate = DateTime.Now.AddDays(-15),
-            IsDeleted = false,
-            IsCheckedOut = true,
-            Id = new Guid("7992249b-8d15-4d11-9de0-92eb848b0b06"),
-            AddedOn = DateTime.Now
-        }
+    private readonly Guid _bookId;
+
+    private List<BookDto> BookDtoList()
+    {
+        return [
+            new()
+            {
+                Title = "Operating System",
+                Author = "Albert",
+                Description = "Coding",
+                IsDeleted = false,
+                IsCheckedOut = false,
+                IssueDate = null,
+                ReturnDate = null,
+                Id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5"),
+                AddedOn = DateTime.Now
+            },
+            new()
+            {
+                Title = "Data Structure",
+                Author = "Mark",
+                Description = "Coding",
+                IsDeleted = false,
+                IsCheckedOut = false,
+                IssueDate = null,
+                ReturnDate = null,
+                Id = new Guid("a834dee5-d026-4042-b426-db087e55c38f"),
+                AddedOn = DateTime.Now
+            },
+            new()
+            {
+                Title = "Data Structure 1",
+                Author = "Mark 1",
+                Description = "Coding 1",
+                IssueDate = null,
+                ReturnDate = null,
+                IsDeleted = true,
+                IsCheckedOut = false,
+                Id = new Guid("b69613b5-9f07-42a8-a437-0b4e186fffbe"),
+                AddedOn = DateTime.Now
+            },
+            new()
+            {
+                Title = "Data Structure 2",
+                Author = "Mark 2",
+                Description = "Coding 2",
+                IssueDate = DateTime.Now,
+                ReturnDate = DateTime.Now.AddDays(-15),
+                IsDeleted = false,
+                IsCheckedOut = true,
+                Id = new Guid("7992249b-8d15-4d11-9de0-92eb848b0b06"),
+                AddedOn = DateTime.Now
+            }
     ];
+
+}
     public BookServiceTest()
     {
         _bookRepositoryMock = new Mock<IBookRepository>();
-        _bookRepositoryMock.Setup(r => r.GetAll()).Returns(books);
         _bookServiceMock = new BookService(_bookRepositoryMock.Object);
+        _bookId = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5"); // Or a specific ID if needed
+
     }
 
     [Fact]
     public void AddBook()
     {
-        Guid id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5");
-        var book = new BookDto()
-        {
-            Title = "Operating System",
-            Author = "Albert",
-            Description = "Coding",
-            Id = id
-        };
+        var book = BookDtoList()[0];
         _bookServiceMock.AddBook(book);
-
         _bookRepositoryMock.Verify(repo => repo.Add(book), Times.Once);
     }
 
     [Fact]
     public void GetAllBooks()
     {
+        _bookRepositoryMock.Setup(r => r.GetAll()).Returns(BookDtoList);
+
         var books = _bookServiceMock.GetAllBooks();
 
         //Assert
@@ -97,93 +96,176 @@ public class BookServiceTest
         Assert.Equal("Coding", books.ToList()[0].Description);
     }
     [Fact]
-    public void GetBookById()
+    public void GetBookById_BookExist()
     {
-        Guid id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5");
-        var book = new BookDto()
-        {
-            Title = "Operating System",
-            Id = id,
-        };
-        _bookRepositoryMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(book);
-        book = _bookServiceMock.GetBookById(id);
+        var book = BookDtoList()[0];
 
-        _bookRepositoryMock.Verify(r => r.GetById(It.IsAny<Guid>()), Times.Once);
+        _bookRepositoryMock.Setup(r => r.GetById(_bookId)).Returns(book);
+
+        book = _bookServiceMock.GetBookById(book.Id);
+
+        _bookRepositoryMock.Verify(r => r.GetById(_bookId), Times.Once);
 
         Assert.NotNull(book);
         Assert.Equal("Operating System", book?.Title);
     }
     [Fact]
-    public void RemoveBook()
+    public void GetBookById_BookNotExist()
     {
-        Guid id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5");
-        var book = new BookDto()
-        {
-            Title = "Operating System",
-            Id = id,
-        };
-        _bookRepositoryMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(book);
-        _bookServiceMock.RemoveBook(id);
+        var book = BookDtoList()[0];
 
-        _bookRepositoryMock.Verify(r => r.GetById(It.IsAny<Guid>()), Times.Once);
+        _bookRepositoryMock.Setup(r => r.GetById(_bookId)).Returns((BookDto)null);
+
+        // Act
+
+        book = _bookServiceMock.GetBookById(_bookId);
+
+        // Assert
+        Assert.Null(book);
+        _bookRepositoryMock.Verify(r => r.GetById(_bookId), Times.Once);
+    }
+    [Fact]
+    public void RemoveBook_BookExist()
+    {
+        var book = BookDtoList()[0];
+
+        _bookRepositoryMock.Setup(r => r.GetById(_bookId)).Returns(book);
+
+        _bookServiceMock.RemoveBook(book.Id);
+
+        _bookRepositoryMock.Verify(r => r.GetById(_bookId), Times.Once);
 
         //Assert
         Assert.Equal(true, book?.IsDeleted);
     }
     [Fact]
+    public void RemoveBook_BookNotExist()
+    {
+
+        _bookRepositoryMock.Setup(repo => repo.GetById(_bookId)).Returns((BookDto)null);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _bookServiceMock.RemoveBook(_bookId));
+        Assert.Equal("Book is not available.", exception.Message);
+        _bookRepositoryMock.Verify(repo => repo.GetById(_bookId), Times.Once);
+    }
+    [Fact]
     public void GetAllOverDueBooks()
     {
+        _bookRepositoryMock.Setup(r => r.GetAll()).Returns(BookDtoList);
+
         var books =_bookServiceMock.GetAllOverDueBooks();
         //Assert
         Assert.NotEmpty(books);
         Assert.Equal("Data Structure 2", books.ToList()[0].Title);
     }
     [Fact]
-    public void CheckOutBook()
+    public void GetAllAvailableBooks()
     {
-        Guid id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5");
-        var book = new BookDto()
-        {
-            Title = "Operating System",
-            Id = id
-        };
-        _bookRepositoryMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(book);
-        _bookServiceMock.CheckOutBook(id);
+        _bookRepositoryMock.Setup(r => r.GetAll()).Returns(BookDtoList);
+
+        var books = _bookServiceMock.GetAllAvailableBooks();
+        //Assert
+        Assert.NotEmpty(books);
+        Assert.Equal(3, books.Count());
+    }
+    [Fact]
+    public void CheckOutBook_BookExist()
+    {
+        var book = BookDtoList()[0];
+        _bookRepositoryMock.Setup(r => r.GetById(_bookId)).Returns(book);
+        _bookServiceMock.CheckOutBook(book.Id);
 
         //Assert
         Assert.True(book.IsCheckedOut);
     }
     [Fact]
-    public void ReturnBook()
+    public void CheckOutBook_BookNotExist()
     {
-        Guid id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5");
-        var book = new BookDto()
+        _bookRepositoryMock.Setup(repo => repo.GetById(_bookId)).Returns((BookDto)null);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _bookServiceMock.CheckOutBook(_bookId));
+        Assert.Equal("Book is not available.", exception.Message);
+        _bookRepositoryMock.Verify(repo => repo.GetById(_bookId), Times.Once);
+    }
+    [Fact]
+    public void CheckOutBook_BookIsAlreadyCheckedOut_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var book = new BookDto
         {
-            Title = "Operating System",
-            Id = id,
-            IsCheckedOut = true,
+            Id = _bookId,
+            IsCheckedOut = true
         };
+        _bookRepositoryMock.Setup(repo => repo.GetById(_bookId)).Returns(book);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _bookServiceMock.CheckOutBook(_bookId));
+        Assert.Equal("Book is not available.", exception.Message);
+        _bookRepositoryMock.Verify(repo => repo.GetById(_bookId), Times.Once);
+    }
+    [Fact]
+    public void ReturnBook_BookExist()
+    {
+        var book = BookDtoList()[0];
+
         _bookRepositoryMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(book);
-        _bookServiceMock.ReturnBook(id);
+        _bookServiceMock.ReturnBook(book.Id);
 
         //Assert
         Assert.False(book.IsCheckedOut);
     }
     [Fact]
+    public void ReturnBook_BookNotExist()
+    {
+        _bookRepositoryMock.Setup(repo => repo.GetById(It.IsAny<Guid>())).Returns((BookDto)null);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _bookServiceMock.ReturnBook(It.IsAny<Guid>()));
+        Assert.Equal("Invalid return operation.", exception.Message);
+        _bookRepositoryMock.Verify(repo => repo.GetById(It.IsAny<Guid>()), Times.Once);
+    }
+    [Fact]
     public void CalculateLateFees()
     {
-        Guid id = new Guid("8279e90d-b9e5-478e-b499-904bb43d38e5");
         var book = new BookDto()
         {
             Title = "Operating System",
-            Id = id,
+            Id = _bookId,
             IsCheckedOut = false,
             ReturnDate = DateTime.Now.AddDays(-20)
         };
-        _bookRepositoryMock.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(book);
-        decimal lateFees = _bookServiceMock.CalculateLateFees(id);
+        _bookRepositoryMock.Setup(r => r.GetById(_bookId)).Returns(book);
+        decimal lateFees = _bookServiceMock.CalculateLateFees(_bookId);
 
         //Assert
         Assert.Equal(60, lateFees);
+    }
+    [Fact]
+    public void CalculateLateFees_BookNotExist()
+    {
+        _bookRepositoryMock.Setup(repo => repo.GetById(_bookId)).Returns((BookDto)null);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _bookServiceMock.CalculateLateFees(_bookId));
+        Assert.Equal("Book has not been returned yet.", exception.Message);
+        _bookRepositoryMock.Verify(repo => repo.GetById(_bookId), Times.Once);
+    }
+    [Fact]
+    public void CalculateLateFees_BookNotReturn_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var book = new BookDto
+        {
+            Id = _bookId,
+            IsCheckedOut = true
+        };
+        _bookRepositoryMock.Setup(repo => repo.GetById(_bookId)).Returns(book);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _bookServiceMock.CalculateLateFees(_bookId));
+        Assert.Equal("Book has not been returned yet.", exception.Message);
+        _bookRepositoryMock.Verify(repo => repo.GetById(_bookId), Times.Once);
     }
 }
