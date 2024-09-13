@@ -23,6 +23,9 @@ namespace LibraryManagementSystem.Api.Endpoints
 
         public override async Task HandleAsync(IdRequest req, CancellationToken ct)
         {
+            // why are we passing in a request object then not using it?  
+            // if you are going to use Fast Endpoints research how to use properly
+            //
             IEnumerable<BookDto> bookDto = _bookService.GetAllBooks();
             await SendAsync(new Response<IEnumerable<BookDto>> { data = bookDto });
         }

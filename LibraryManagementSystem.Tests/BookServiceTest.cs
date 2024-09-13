@@ -5,7 +5,10 @@ using Moq;
 
 namespace LibraryManagementSystem.Tests;
 
-public class BookServiceTest
+/// <summary>
+/// the mocks are not being used correctly.  the Verifies should be in a dispose method
+/// </summary>
+public class BookServiceTest : IDisposable
 {
     private readonly Mock<IBookRepository> _bookRepositoryMock;
     private readonly IBookService _bookServiceMock;
@@ -13,6 +16,8 @@ public class BookServiceTest
 
     private List<BookDto> BookDtoList()
     {
+        // this should be in another class, not in this test.  how could these be reused for other test classes?
+        
         return [
             new()
             {
@@ -73,6 +78,8 @@ public class BookServiceTest
 
     }
 
+    public void Dispose() => _bookRepositoryMock.VerifyAll();
+
     [Fact]
     public void AddBook()
     {
@@ -95,6 +102,7 @@ public class BookServiceTest
         Assert.Equal("Albert", books.ToList()[0].Author);
         Assert.Equal("Coding", books.ToList()[0].Description);
     }
+    
     [Fact]
     public void GetBookById_BookExist()
     {

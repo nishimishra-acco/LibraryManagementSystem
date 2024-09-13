@@ -3,6 +3,8 @@ using LibraryManagementSystem.Api.Endpoints;
 using LibraryManagementSystem.Service.Models;
 using LibraryManagementSystem.Service.Services;
 
+// unused 'usings' should not exist
+
 namespace LibraryManagementSystem.Endpoints
 {
     public class CheckOutBook : Endpoint<IdRequest, Response<BookDto>>

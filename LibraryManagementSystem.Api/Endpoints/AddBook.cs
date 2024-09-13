@@ -21,15 +21,11 @@ namespace LibraryManagementSystem.Api.Endpoints
 
         public override async Task HandleAsync(BookDto req, CancellationToken ct)
         {
-            BookDto bookDto = new()
-            {
-                    Id = Guid.NewGuid(),
-                    Title = req.Title,
-                    Author = req.Author,
-                    Description = req.Description,
-             };
-            _bookService.AddBook(bookDto);
-            await SendAsync(new Response<BookDto> { data = bookDto, Message = "Book Added Successfully" });
+            //not sure why you are creating a new bookDto when you have one handed to you and passed in as the
+            //method argument?
+           
+            _bookService.AddBook(req);
+            await SendAsync(new Response<BookDto> { data = req, Message = "Book Added Successfully" });
         }
     }
 }

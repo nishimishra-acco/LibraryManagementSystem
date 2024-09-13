@@ -1,5 +1,9 @@
 ﻿using System.Reflection;
 
+//unused 'using' don't need it
+
+// the EntityDto should be in another class.
+// why is there not at least a blank line between these two objects?
 namespace LibraryManagementSystem.Service.Models
 {
     public class BookDto : EntityDto

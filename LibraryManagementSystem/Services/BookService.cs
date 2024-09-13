@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Service.Models;
 using LibraryManagementSystem.Service.Repositories;
-using System.Net;
 
 namespace LibraryManagementSystem.Service.Services;
 
@@ -8,24 +7,30 @@ public class BookService : IBookService
 {
     private readonly IBookRepository _bookRepository;
 
+    //this should be a constant and not private.  should be on a static class that is public
+    //so you can use this value when writing unit tests
     private readonly int _maxLoanDays = 14;
 
     public BookService(IBookRepository bookRepository)
     {
         _bookRepository = bookRepository;
     }
+    
     public void AddBook(BookDto bookDto)
     {
         _bookRepository.Add(bookDto);
     }
+    
     public IEnumerable<BookDto> GetAllBooks()
     {
         return _bookRepository.GetAll();
     }
+    
     public BookDto? GetBookById(Guid id)
     {
         return _bookRepository.GetById(id);
     }
+    
     public void RemoveBook(Guid id)
     {
         var book = _bookRepository.GetById(id);
@@ -33,6 +38,7 @@ public class BookService : IBookService
             throw new InvalidOperationException("Book is not available.");
         book.IsDeleted = true;
     }
+    
     public IEnumerable<BookDto> GetAllOverDueBooks() =>
             _bookRepository.GetAll().Where(b => b.IsCheckedOut && b.ReturnDate <= DateTime.Now);
 

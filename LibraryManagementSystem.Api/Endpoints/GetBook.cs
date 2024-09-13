@@ -24,6 +24,9 @@ namespace LibraryManagementSystem.Api.Endpoints
         public override async Task HandleAsync(IdRequest req, CancellationToken ct)
         {
             BookDto bookDto = _bookService.GetBookById(req.Id);
+            // why you not check this inside the service?   
+            // everywhere in the code when you need to get book you are going to check for nulls?
+            //
             if (bookDto == null)
             {
                 await SendAsync(new Response<BookDto> { Message = $"Book with id {req.Id} not found" });
